@@ -44,6 +44,7 @@ _gitversion: dummy
 
 clean:
 	-$(RM) *.o
+	-$(RM) _gitversion
 	-$(RM) mdns-repeater-rewrite
 	-$(RM) mdns-repeater-rewrite-*.zip
 
