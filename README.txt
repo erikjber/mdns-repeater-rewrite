@@ -9,7 +9,7 @@ This allows zeroconf devices to work properly across two or more subnets.
 The program is also capable of rewriting source addresses on the fly in order
 to solve some routing problems.
 
-mdns-repeate-rewrite is fork of mdns-repeater by Darell Tan.
+mdns-repeate-rewrite is a fork of mdns-repeater by Darell Tan.
 
 USAGE
 -----
