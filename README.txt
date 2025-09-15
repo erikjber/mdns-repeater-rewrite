@@ -35,7 +35,7 @@ mdns-repeater-rewrite is capable of not just forwarding packets, but also rewrit
 IP addresses so that they appear to point to the mdns-machine.
 
 "Vanilla" mdns-repeater-rewrite is sufficient if the machines on all networks served
-by mdns-repeater-rewrite knows how to route on all other networks. This might not be 
+by mdns-repeater-rewrite know how to route on all other networks. This might not be 
 the case, for example if several small networks with the same network addresses are connected 
 to one larger, central network. If all the small networks have the network address
 192.168.1.0/24 (for example), a machine on the larger network will have no way to route
