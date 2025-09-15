@@ -48,7 +48,7 @@ of the mDNS packet.
 Unfortunately, it is not know if any mDNS resolvers do this - systemd-resolved, for exmple, does not.
 This issue is not covered by RFC 6762.
 To get around this limitation, rewriting is introduced. For rewriting to work, 
-NAT and port forwarding must be in use on the machines routing between the large
+NAT and port forwarding must be in use on the machines routing between the
 networks.
 
 
