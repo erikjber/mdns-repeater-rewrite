@@ -1,0 +1,4 @@
+*.o
+mdns-repeater-rewrite
+mdns-repeater-rewrite-*.zip 
+.vscode/

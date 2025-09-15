@@ -1,13 +1,13 @@
 # Makefile for mdns-repeater-rewrite
 
 
-ZIP_NAME = mdns-repeater-rewrite-$(HGVERSION)
+ZIP_NAME = mdns-repeater-rewrite-$(GITVERSION)
 
 ZIP_FILES = mdns-repeater-rewrite	\
 			README.txt		\
 			LICENSE.txt
 
-HGVERSION=$(shell git rev-parse HEAD )
+GITVERSION=$(shell git rev-parse HEAD )
 
 CFLAGS=-Wall
 
@@ -18,13 +18,13 @@ CFLAGS+= -Os
 LDFLAGS+= -s
 endif
 
-CFLAGS+= -DHGVERSION="\"${HGVERSION}\""
+CFLAGS+= -DGITVERSION="\"${GITVERSION}\""
 
 .PHONY: all clean
 
 all: mdns-repeater-rewrite
 
-mdns-repeater-rewrite.o: _hgversion
+mdns-repeater-rewrite.o: _gitversion
 
 mdns-repeater-rewrite: mdns-repeater-rewrite.o
 
@@ -39,12 +39,11 @@ zip: mdns-repeater-rewrite
 
 # version checking rules
 .PHONY: dummy
-_hgversion: dummy
-	@echo $(HGVERSION) | cmp -s $@ - || echo $(HGVERSION) > $@
+_gitversion: dummy
+	@echo $(GITVERSION) | cmp -s $@ - || echo $(GITVERSION) > $@
 
 clean:
 	-$(RM) *.o
-	-$(RM) _hgversion
 	-$(RM) mdns-repeater-rewrite
 	-$(RM) mdns-repeater-rewrite-*.zip
 
