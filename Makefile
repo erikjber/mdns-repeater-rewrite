@@ -1,9 +1,9 @@
-# Makefile for mdns-repeater
+# Makefile for mdns-repeater-rewrite
 
 
-ZIP_NAME = mdns-repeater-$(HGVERSION)
+ZIP_NAME = mdns-repeater-rewrite-$(HGVERSION)
 
-ZIP_FILES = mdns-repeater	\
+ZIP_FILES = mdns-repeater-rewrite	\
 			README.txt		\
 			LICENSE.txt
 
@@ -22,15 +22,15 @@ CFLAGS+= -DHGVERSION="\"${HGVERSION}\""
 
 .PHONY: all clean
 
-all: mdns-repeater
+all: mdns-repeater-rewrite
 
-mdns-repeater.o: _hgversion
+mdns-repeater-rewrite.o: _hgversion
 
-mdns-repeater: mdns-repeater.o
+mdns-repeater-rewrite: mdns-repeater-rewrite.o
 
 .PHONY: zip
 zip: TMPDIR := $(shell mktemp -d)
-zip: mdns-repeater
+zip: mdns-repeater-rewrite
 	mkdir $(TMPDIR)/$(ZIP_NAME)
 	cp $(ZIP_FILES) $(TMPDIR)/$(ZIP_NAME)
 	-$(RM) $(CURDIR)/$(ZIP_NAME).zip
@@ -45,6 +45,6 @@ _hgversion: dummy
 clean:
 	-$(RM) *.o
 	-$(RM) _hgversion
-	-$(RM) mdns-repeater
-	-$(RM) mdns-repeater-*.zip
+	-$(RM) mdns-repeater-rewrite
+	-$(RM) mdns-repeater-rewrite-*.zip
 

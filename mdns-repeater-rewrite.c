@@ -1,6 +1,7 @@
 /*
- * mdns-repeater.c - mDNS repeater daemon
+ * mdns-repeater-rewrite.c - mDNS repeater daemon
  * Copyright (C) 2011 Darell Tan
+ * Address rewrite copyright (c) 2025 Erik Berglund
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,6 +35,7 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <errno.h>
+#include "packet-rewrite.h"
 
 #define PACKAGE "mdns-repeater"
 #define MDNS_ADDR "224.0.0.251"
@@ -75,6 +77,7 @@ struct subnet whitelisted_subnets[MAX_SUBNETS];
 void *pkt_data = NULL;
 
 int foreground = 0;
+int rewrite = 0;
 int shutdown_flag = 0;
 
 char *pid_file = PIDFILE;
@@ -346,6 +349,7 @@ static void show_help(const char *progname) {
 					"maximum number of interfaces is 5\n"
 					"\n"
 					" flags:\n"
+					"	-r	rewrite source addresses in mDNS packets\n"
 					"	-f	runs in foreground for debugging\n"
 					"	-b	blacklist subnet (eg. 192.168.1.1/24)\n"
 					"	-w	whitelist subnet (eg. 192.168.1.1/24)\n"
@@ -411,8 +415,9 @@ static int parse_opts(int argc, char *argv[]) {
 	int help = 0;
 	struct subnet *ss;
 	char *msg;
-	while ((c = getopt(argc, argv, "hfp:b:w:u:")) != -1) {
+	while ((c = getopt(argc, argv, "rhfp:b:w:u:")) != -1) {
 		switch (c) {
+			case 'r': rewrite = 1; break;
 			case 'h': help = 1; break;
 			case 'f': foreground = 1; break;
 			case 'p':
@@ -569,6 +574,9 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 	}
+	if (foreground && rewrite){
+		printf("Rewriting addresses.\n");
+	}
 
 	pkt_data = malloc(PACKET_SIZE);
 	if (pkt_data == NULL) {
@@ -660,6 +668,11 @@ int main(int argc, char *argv[]) {
 
 				if (foreground)
 					printf("repeating data to %s\n", socks[j].ifname);
+
+				if (rewrite){
+					// We pass NULL for the IPv6 address since this program is currently only capable of handling IPv4 packets.
+					rewrite_mDNS_packet(pkt_data,recvsize,&socks[j].addr,NULL);
+				}
 
 				// repeat data
 				ssize_t sentsize = send_packet(socks[j].sockfd, pkt_data, (size_t) recvsize);
