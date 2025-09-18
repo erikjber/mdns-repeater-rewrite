@@ -18,6 +18,8 @@
  */
 #define TYPE_A  1
 #define TYPE_AAAA 28
+#define IPv4_ADDRESS_SIZE 4
+#define IPv6_ADDRESS_SIZE 16
 
 // Helper to read a DNS name (handles compression only partially)
 int read_dns_name(const uint8_t *packet, size_t packet_len, size_t offset, char *out, size_t out_len, size_t *name_end) {
@@ -64,8 +66,8 @@ int read_dns_name(const uint8_t *packet, size_t packet_len, size_t offset, char 
  * @param data_pointer An output variable that, once this method returns, points to the first byte after the questions section.
  */
 void scan_questions(uint16_t questions, const uint8_t * packet, size_t length, size_t *data_pointer){
+	char name[1024];
 	for(int q = 0;q<questions;q++){
-		char name[1024];
 		size_t end = 0;
 		read_dns_name(packet,length,*data_pointer,name,1024,&end);
 		*data_pointer = end+4;
@@ -85,8 +87,8 @@ void scan_questions(uint16_t questions, const uint8_t * packet, size_t length, s
  * @param inet6_addr The new IPv6 address, or NULL.
  */
 void scan_and_replace_rr( uint16_t records, uint8_t * packet, size_t length, size_t *data_pointer, uint8_t *inet4_addr, uint8_t *inet6_addr){
+	char name[1024];
 	for(int r = 0;r<records;r++){
-		char name[1024];
 		size_t end = 0;
 		read_dns_name(packet,length,*data_pointer,name,1024,&end);
 		*data_pointer = end;
@@ -95,11 +97,15 @@ void scan_and_replace_rr( uint16_t records, uint8_t * packet, size_t length, siz
 		*data_pointer += 8;
 		uint16_t data_length = (packet[*data_pointer]<<8)|packet[*data_pointer+1];
 		*data_pointer += 2;
-        if (type == TYPE_A && inet4_addr != NULL){
+        if (*data_pointer+data_length > length){
+            printf("Packet too short.\n");
+            return;
+        }
+        if (type == TYPE_A && inet4_addr != NULL && data_length == IPv4_ADDRESS_SIZE){
             // Replace the IPv4 address
             memcpy(&packet[*data_pointer],inet4_addr,data_length);
         }
-        else if (type == TYPE_AAAA && inet6_addr != NULL){
+        else if (type == TYPE_AAAA && inet6_addr != NULL && data_length == IPv6_ADDRESS_SIZE){
             // Replace the IPv6 address
             memcpy(&packet[*data_pointer],inet6_addr,data_length);
         }
@@ -124,8 +130,8 @@ void rewrite_mDNS_packet(uint8_t *packet,size_t length, struct in_addr *new_addr
 		return;
 	}
 
-	// The two first bytes are the ID which is usually zero, ignore
-	// the third and fourth bytes are the flags, we ignore them
+	// The two first bytes are the ID which is usually zero, ignore.
+	// The third and fourth bytes are the flags, we ignore them too.
 
     // Get the number of entries in the four main sections of the packet
 	uint16_t num_questions      = (packet[4] << 8)  | packet[5];
